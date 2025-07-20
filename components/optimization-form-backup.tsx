@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Loader2, Download, Mail, Eye, EyeOff, TrendingUp, DollarSign, Zap, Target, Award, BarChart3, CheckCircle2, AlertTriangle, Info } from "lucide-react"
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 const suggestedUseCases = {
   Fintech: "Summarize transactions, generate reports, multilingual chatbot",
@@ -64,7 +66,7 @@ interface FormData {
   monthlyVolume: number
   currentModels: string[]
   organizationalFunctions: string[]
-  generatePdf: boolean
+  generatePdf: boolean // NEW
 }
 
 interface AnalysisResult {
@@ -94,6 +96,7 @@ interface AnalysisResult {
   }
 }
 
+
 export default function OptimizationForm() {
   const [formData, setFormData] = useState<FormData>({
     domain: "Fintech",
@@ -107,7 +110,7 @@ export default function OptimizationForm() {
     monthlyVolume: 100000,
     currentModels: [],
     organizationalFunctions: [],
-    generatePdf: false,
+    generatePdf: false, // NEW
   })
   
   const [isLoading, setIsLoading] = useState(false)
@@ -200,6 +203,18 @@ export default function OptimizationForm() {
       console.error("PDF download failed:", error)
     }
   }
+
+  const ReportSection = ({ title, icon: Icon, children }: { title: string, icon: any, children: React.ReactNode }) => (
+    <div className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-700/50 p-6 shadow-xl">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="p-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg">
+          <Icon className="h-5 w-5 text-white" />
+        </div>
+        <h3 className="text-xl font-bold text-white">{title}</h3>
+      </div>
+      {children}
+    </div>
+  )
 
   const MetricCard = ({ title, value, subtitle, trend }: { title: string, value: string, subtitle?: string, trend?: 'up' | 'down' }) => (
     <div className="group bg-gradient-to-br from-gray-800/60 to-gray-700/60 rounded-lg p-5 border border-gray-600/50 hover:border-emerald-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-400/10 transform hover:scale-[1.02]">
@@ -545,7 +560,7 @@ export default function OptimizationForm() {
           </CardContent>
         </Card>
 
-        {/* Results - Enhanced Modern Design */}
+        {/* Results - Enhanced AI Cost Optimization Report */}
         {result && (
           <div className="space-y-8 animate-fade-in">
             {/* Success Banner */}
@@ -568,7 +583,7 @@ export default function OptimizationForm() {
             {result.response && (() => {
               const metrics = extractKeyMetrics(result.response);
               return (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 opacity-0 animate-fade-in" style={{animationDelay: '0.1s', animationFillMode: 'forwards'}}>
                   <MetricCard 
                     title="Recommended Model" 
                     value={metrics.recommendedModel} 
@@ -594,10 +609,9 @@ export default function OptimizationForm() {
                 </div>
               );
             })()}
-
-            {/* Modern Report Layout */}
+            
             {result.response && (
-              <div className="space-y-8">
+              <div className="space-y-8 opacity-0 animate-fade-in" style={{animationDelay: '0.2s', animationFillMode: 'forwards'}}>
                 {/* Modern Report Header */}
                 <div className="bg-gradient-to-r from-slate-900/90 via-gray-900/90 to-slate-900/90 backdrop-blur-xl rounded-3xl border border-white/10 p-8 shadow-2xl">
                   <div className="flex items-start justify-between mb-8">
@@ -630,511 +644,111 @@ export default function OptimizationForm() {
                   </div>
                 </div>
 
-                {/* Enhanced Content Display */}
+                {/* Custom Parsed Content */}
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                  {/* Main Content Column - Simple LLM Response Display */}
+                  {/* Main Content Column */}
                   <div className="xl:col-span-2 space-y-8">
-                    {/* Simple LLM Response Display */}
-                    <div className="relative">
-                      <div className="bg-gradient-to-br from-slate-900/90 via-gray-900/90 to-slate-900/90 backdrop-blur-xl rounded-3xl border border-white/10 p-8 shadow-2xl">
-                        <div className="flex items-center gap-3 mb-6">
-                          <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
-                            <span className="text-lg">📋</span>
+                    <ReactMarkdown
+                      children={result.response.replace(/^```markdown\n/, '').replace(/\n```$/, '')}
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        h1: ({node, children, ...props}) => {
+                          const text = children?.toString() || '';
+                          return (
+                            <div className="bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 rounded-2xl p-6 border border-indigo-500/20 mb-8">
+                              <h1 className="text-3xl font-bold text-white flex items-center gap-4">
+                                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center">
+                                  <span className="text-xl">🎯</span>
+                                </div>
+                                <span>{text.replace(/🎯|📝|📋/g, '').trim()}</span>
+                              </h1>
+                            </div>
+                          );
+                        },
+                        h2: ({node, children, ...props}) => {
+                          const text = children?.toString() || '';
+                          return (
+                            <div className="flex items-center gap-4 mb-6 pb-4 border-b border-white/10">
+                              <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
+                                <span className="text-lg">📊</span>
+                              </div>
+                              <h2 className="text-2xl font-bold text-white">
+                                {text.replace(/📊|📝|📋/g, '').trim()}
+                              </h2>
+                            </div>
+                          );
+                        },
+                        h3: ({node, children, ...props}) => {
+                          const text = children?.toString() || '';
+                          let icon = '🔍';
+                          let colors = 'from-cyan-500 to-blue-500';
+                          
+                          if (text.includes('LLM Recommendations')) {
+                            icon = '🤖'; colors = 'from-emerald-500 to-teal-500';
+                          } else if (text.includes('Token Cost')) {
+                            icon = '💰'; colors = 'from-yellow-500 to-orange-500';
+                          } else if (text.includes('Credit Usage')) {
+                            icon = '⚠️'; colors = 'from-amber-500 to-red-500';
+                          } else if (text.includes('ROI') || text.includes('Payback')) {
+                            icon = '📈'; colors = 'from-green-500 to-emerald-500';
+                          } else if (text.includes('Infrastructure')) {
+                            icon = '🏗️'; colors = 'from-purple-500 to-indigo-500';
+                          }
+                          
+                          return (
+                            <div className="bg-white/5 rounded-xl p-4 mb-6 border border-white/10">
+                              <div className="flex items-center gap-3">
+                                <div className={`w-10 h-10 bg-gradient-to-br ${colors} rounded-xl flex items-center justify-center shadow-lg`}>
+                                  <span className="text-lg">{icon}</span>
+                                </div>
+                                <h3 className="text-xl font-bold text-white">
+                                  {text.replace(/🔍|💰|⚠️|📈|🏗️|⚙️|💡|🧠|📄|🤖|[0-9]+\./g, '').trim()}
+                                </h3>
+                              </div>
+                            </div>
+                          );
+                        },
+                        ul: ({node, ...props}) => <ul className="space-y-3 mb-6" {...props} />,
+                        li: ({node, children, ...props}) => (
+                          <li className="flex items-start gap-3 p-4 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-all">
+                            <div className="w-2 h-2 bg-emerald-400 rounded-full mt-2 flex-shrink-0"></div>
+                            <span className="text-gray-200 leading-relaxed">{children}</span>
+                          </li>
+                        ),
+                        table: ({node, ...props}) => (
+                          <div className="bg-white/5 rounded-2xl p-6 border border-white/10 mb-8 overflow-hidden">
+                            <table className="w-full" {...props} />
                           </div>
-                          <h3 className="text-2xl font-bold text-white">✅ AI Cost Optimization Report</h3>
-                        </div>
-                        
-                        {/* LLM Response Container - Enhanced for Lyzr Output */}
-                        <div className="bg-gray-800/30 rounded-2xl p-6 border border-gray-700/50">
-                          {result.response ? (
-                            <div className="space-y-6">
-                              {/* Render actual LLM response with enhanced formatting */}
-                              <div 
-                                className="text-gray-100 leading-relaxed whitespace-pre-wrap"
-                                style={{ 
-                                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                                  lineHeight: '1.6'
-                                }}
-                              >
-                                {result.response.split('\n').map((line, index) => {
-                                  const trimmedLine = line.trim();
-                                  
-                                  // Debug logging for troubleshooting
-                                  if (trimmedLine.toLowerCase().includes('llm') || trimmedLine.toLowerCase().includes('recommendations')) {
-                                    console.log('LLM line found:', trimmedLine);
-                                  }
-                                  
-                                  // Skip empty lines, markdown code blocks, and table separators
-                                  if (!trimmedLine || 
-                                      trimmedLine === '```markdown' || 
-                                      trimmedLine === '```' || 
-                                      trimmedLine === '---' ||
-                                      /^\|\s*---/.test(trimmedLine) ||
-                                      /^[\|\s\-]+$/.test(trimmedLine)) {
-                                    return <div key={index} className="h-2"></div>;
-                                  }
-                                  
-                                  // Clean markdown formatting
-                                  const cleanLine = trimmedLine
-                                    .replace(/^###\s*/, '')
-                                    .replace(/^##\s*/, '')
-                                    .replace(/^#\s*/, '')
-                                    .replace(/^\*\*(.+)\*\*$/, '$1')
-                                    .replace(/\*\*(.+?)\*\*/g, '$1');
-                                  
-                                  // Main report title (✅ AI Cost Optimization Report)
-                                  if (cleanLine.startsWith('✅')) {
-                                    return (
-                                      <div key={index} className="text-2xl font-bold text-emerald-400 mb-6 pb-4 border-b border-emerald-500/30 flex items-center gap-3">
-                                        <span className="text-3xl">✅</span>
-                                        <span>{cleanLine.replace('✅', '').trim()}</span>
-                                      </div>
-                                    );
-                                  }
-                                  
-                                  // Main section headers (🎯 AIntellicost Enterprise AI Cost Optimization Report)
-                                  if (cleanLine.match(/^🎯.*Report$/)) {
-                                    return (
-                                      <div key={index} className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 mb-8 text-center">
-                                        {cleanLine}
-                                      </div>
-                                    );
-                                  }
-                                  
-                                  // Section headers with numbers (1. 🔍 LLM Recommendations) - Enhanced matching
-                                  if (cleanLine.match(/^\d+\.\s*[🔍📊⚠️🧮🛠⚙️📦🧠📄]/)) {
-                                    const parts = cleanLine.match(/^(\d+)\.\s*([🔍📊⚠️🧮🛠⚙️📦🧠📄])\s*(.+)$/);
-                                    if (parts) {
-                                      return (
-                                        <div key={index} className="mt-8 mb-4">
-                                          <div className="flex items-center gap-4 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-xl p-5 border border-indigo-500/30">
-                                            <div className="flex items-center gap-2">
-                                              <span className="text-sm font-bold text-indigo-300 bg-indigo-500/30 rounded-full w-8 h-8 flex items-center justify-center">{parts[1]}</span>
-                                              <span className="text-2xl">{parts[2]}</span>
-                                            </div>
-                                            <h3 className="text-xl font-bold text-indigo-300">{parts[3]}</h3>
-                                          </div>
-                                        </div>
-                                      );
-                                    }
-                                  }
-                                  
-                                  // Alternative section header format (without emoji)
-                                  if (cleanLine.match(/^\d+\.\s*(LLM\s+Recommendations|Token\s+Cost|Credit\s+Usage|ROI\s+.*Analysis|Agent\s+Architecture|Infrastructure\s+Optimization|Cost-saving\s+Strategies|Match\s+Score|Final\s+Summary)/i)) {
-                                    const parts = cleanLine.match(/^(\d+)\.\s*(.+)$/);
-                                    if (parts) {
-                                      // Add appropriate emoji based on content
-                                      let emoji = '📊';
-                                      if (parts[2].toLowerCase().includes('llm') || parts[2].toLowerCase().includes('recommendations')) emoji = '🔍';
-                                      else if (parts[2].toLowerCase().includes('cost') || parts[2].toLowerCase().includes('token')) emoji = '💰';
-                                      else if (parts[2].toLowerCase().includes('credit') || parts[2].toLowerCase().includes('usage')) emoji = '⚠️';
-                                      else if (parts[2].toLowerCase().includes('roi') || parts[2].toLowerCase().includes('analysis')) emoji = '🧮';
-                                      else if (parts[2].toLowerCase().includes('architecture') || parts[2].toLowerCase().includes('agent')) emoji = '🛠️';
-                                      else if (parts[2].toLowerCase().includes('infrastructure') || parts[2].toLowerCase().includes('optimization')) emoji = '⚙️';
-                                      else if (parts[2].toLowerCase().includes('strategies') || parts[2].toLowerCase().includes('saving')) emoji = '📦';
-                                      else if (parts[2].toLowerCase().includes('score') || parts[2].toLowerCase().includes('match')) emoji = '🧠';
-                                      else if (parts[2].toLowerCase().includes('summary') || parts[2].toLowerCase().includes('final')) emoji = '📄';
-                                      
-                                      return (
-                                        <div key={index} className="mt-8 mb-4">
-                                          <div className="flex items-center gap-4 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-xl p-5 border border-indigo-500/30">
-                                            <div className="flex items-center gap-2">
-                                              <span className="text-sm font-bold text-indigo-300 bg-indigo-500/30 rounded-full w-8 h-8 flex items-center justify-center">{parts[1]}</span>
-                                              <span className="text-2xl">{emoji}</span>
-                                            </div>
-                                            <h3 className="text-xl font-bold text-indigo-300">{parts[2]}</h3>
-                                          </div>
-                                        </div>
-                                      );
-                                    }
-                                  }
-                                  
-                                  // Skip Input Context (📝) section completely
-                                  if (cleanLine.match(/^📝/)) {
-                                    return <div key={index} className="h-1"></div>;
-                                  }
-                                  
-                                  // Show only Structured Output (📋) section with beautiful styling
-                                  if (cleanLine.match(/^📋/)) {
-                                    const emoji = cleanLine.charAt(0);
-                                    const text = cleanLine.substring(1).trim();
-                                    return (
-                                      <div key={index} className="mt-6 mb-4">
-                                        <div className="flex items-center gap-3 bg-gradient-to-r from-cyan-500/15 to-blue-500/15 rounded-lg p-4 border border-cyan-500/25">
-                                          <span className="text-xl">{emoji}</span>
-                                          <h4 className="text-lg font-bold text-cyan-300">{text}</h4>
-                                        </div>
-                                      </div>
-                                    );
-                                  }
-                                  
-                                  // Enhanced Table detection - handle all table formats properly
-                                  if (cleanLine.includes('|')) {
-                                    const cells = cleanLine.split('|').map(cell => cell.trim()).filter(cell => cell && cell !== '---' && cell !== '');
-                                    
-                                    if (cells.length > 1) {
-                                      // Skip table headers and separators
-                                      const isHeaderRow = cells.some(cell => 
-                                        cell.toLowerCase().includes('field') || 
-                                        cell.toLowerCase().includes('model') || 
-                                        cell.toLowerCase().includes('metric') ||
-                                        cell.toLowerCase().includes('action') ||
-                                        cell.toLowerCase().includes('recommendation') ||
-                                        cell.toLowerCase().includes('llm model') ||
-                                        cell.toLowerCase().includes('cost') ||
-                                        cell.toLowerCase().includes('latency') ||
-                                        cell.toLowerCase().includes('quality') ||
-                                        cell.toLowerCase().includes('reasoning') ||
-                                        cell.toLowerCase().includes('context') ||
-                                        cell.toLowerCase().includes('final score') ||
-                                        cell.toLowerCase().includes('reason') ||
-                                        cell.toLowerCase().includes('details') ||
-                                        cell.toLowerCase().includes('value') ||
-                                        cell.toLowerCase().includes('notes') ||
-                                        cell.toLowerCase().includes('est. tokens/task') ||
-                                        cell.toLowerCase().includes('est. monthly cost') ||
-                                        cell.toLowerCase().includes('credit usage') ||
-                                        cell.toLowerCase().includes('optimization tips')
-                                      );
-                                      
-                                      const isSeparatorRow = cells.every(cell => /^[-\s]*$/.test(cell));
-                                      
-                                      // Check if we're in the LLM Recommendations section
-                                      const isInLLMSection = (() => {
-                                        // Look backwards to see if we recently saw an LLM Recommendations header
-                                        const lookbackLines = result.response.split('\n').slice(0, index);
-                                        const recentLines = lookbackLines.slice(-10); // Look at last 10 lines
-                                        return recentLines.some(line => 
-                                          line.includes('LLM Recommendations') || 
-                                          line.includes('🔍 LLM Recommendations')
-                                        );
-                                      })();
-                                      
-                                      // Check if we're in the Token Cost Estimation section
-                                      const isInTokenCostSection = (() => {
-                                        // Look backwards to see if we recently saw a Token Cost header
-                                        const lookbackLines = result.response.split('\n').slice(0, index);
-                                        const recentLines = lookbackLines.slice(-10); // Look at last 10 lines
-                                        return recentLines.some(line => 
-                                          line.includes('Token Cost') || 
-                                          line.includes('💰 Token Cost') ||
-                                          line.includes('📊 Token Cost')
-                                        );
-                                      })();
-                                      
-                                      if (isSeparatorRow) {
-                                        // Skip separators
-                                        return <div key={index} className="h-1"></div>;
-                                      } else if (isHeaderRow && (isInLLMSection || isInTokenCostSection)) {
-                                        // Display header as styled header for LLM section and Token Cost section
-                                        return (
-                                          <div key={index} className="ml-6 mb-2">
-                                            <div className="bg-gradient-to-r from-indigo-600/30 to-purple-600/30 rounded-lg p-3 border border-indigo-500/30">
-                                              <div className={`grid gap-4 text-sm font-bold text-indigo-200 ${cells.length <= 2 ? 'grid-cols-2' : cells.length === 3 ? 'grid-cols-3' : 'grid-cols-4'}`}>
-                                                {cells.map((cell, cellIndex) => (
-                                                  <div key={cellIndex} className="text-center">{cell}</div>
-                                                ))}
-                                              </div>
-                                            </div>
-                                          </div>
-                                        );
-                                      } else if (isHeaderRow) {
-                                        // Skip headers for non-LLM sections (original behavior)
-                                        return <div key={index} className="h-1"></div>;
-                                      } else {
-                                        // Convert table rows to enhanced cards
-                                        const [firstCell, ...restCells] = cells;
-                                        
-                                        // Special handling for score tables (LLM Match Score Table)
-                                        if (restCells.length >= 5 && restCells.some(cell => cell.includes('✅'))) {
-                                          return (
-                                            <div key={index} className="ml-6 mb-4">
-                                              <div className="bg-gradient-to-r from-slate-800/50 to-gray-800/50 rounded-xl border border-gray-600/40 hover:border-emerald-500/30 transition-all overflow-hidden">
-                                                {/* Model name header */}
-                                                <div className="bg-gradient-to-r from-emerald-600/20 to-teal-600/20 p-4 border-b border-gray-600/30">
-                                                  <h4 className="font-bold text-emerald-300 text-lg flex items-center gap-2">
-                                                    <span className="w-2 h-2 bg-emerald-400 rounded-full"></span>
-                                                    {firstCell}
-                                                  </h4>
-                                                </div>
-                                                {/* Metrics grid */}
-                                                <div className="p-4">
-                                                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-                                                    {restCells.map((cell, cellIndex) => {
-                                                      const labels = ['Cost Efficiency', 'Latency', 'Quality', 'Reasoning', 'Context Length', 'Final Score'];
-                                                      const label = labels[cellIndex] || `Metric ${cellIndex + 1}`;
-                                                      
-                                                      return (
-                                                        <div key={cellIndex} className="text-center">
-                                                          <div className="text-xs text-gray-400 mb-1 uppercase tracking-wide">{label}</div>
-                                                          <div className="text-lg font-semibold">
-                                                            {cell.includes('✅') ? (
-                                                              <span className="text-green-400">{cell}</span>
-                                                            ) : (
-                                                              <span className="text-white">{cell}</span>
-                                                            )}
-                                                          </div>
-                                                        </div>
-                                                      );
-                                                    })}
-                                                  </div>
-                                                </div>
-                                              </div>
-                                            </div>
-                                          );
-                                        } else if (isInLLMSection) {
-                                          // Enhanced card display for LLM Recommendations section
-                                          return (
-                                            <div key={index} className="ml-6 mb-4">
-                                              <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-gray-700/20 to-gray-600/20 rounded-xl border border-gray-600/40 hover:border-emerald-500/40 transition-all">
-                                                <div className="w-3 h-3 bg-emerald-400 rounded-full mt-2 flex-shrink-0"></div>
-                                                <div className="flex-1">
-                                                  <div className="font-bold text-emerald-300 text-lg mb-2">{firstCell}</div>
-                                                  {restCells.length > 0 && (
-                                                    <div className="space-y-2">
-                                                      {restCells.map((cell, cellIndex) => (
-                                                        <div key={cellIndex} className="text-gray-200 leading-relaxed">
-                                                          {cell.includes('✅') ? (
-                                                            <span className="text-green-400">{cell}</span>
-                                                          ) : (
-                                                            cell
-                                                          )}
-                                                        </div>
-                                                      ))}
-                                                    </div>
-                                                  )}
-                                                </div>
-                                              </div>
-                                            </div>
-                                          );
-                                        } else if (isInTokenCostSection) {
-                                          // Enhanced card display for Token Cost Estimation section
-                                          return (
-                                            <div key={index} className="ml-6 mb-4">
-                                              <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-blue-700/20 to-indigo-600/20 rounded-xl border border-blue-600/40 hover:border-blue-500/40 transition-all">
-                                                <div className="w-3 h-3 bg-blue-400 rounded-full mt-2 flex-shrink-0"></div>
-                                                <div className="flex-1">
-                                                  <div className="font-bold text-blue-300 text-lg mb-2">{firstCell}</div>
-                                                  {restCells.length > 0 && (
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                                                      {restCells.map((cell, cellIndex) => {
-                                                        // Define column headers for token cost table
-                                                        const headers = ['Est. Tokens/Task', 'Est. Monthly Cost', 'Notes'];
-                                                        const header = headers[cellIndex] || `Detail ${cellIndex + 1}`;
-                                                        
-                                                        return (
-                                                          <div key={cellIndex} className="bg-blue-500/10 rounded-lg p-3 border border-blue-500/20">
-                                                            <div className="text-xs text-blue-300 mb-1 uppercase tracking-wide font-semibold">{header}</div>
-                                                            <div className="text-white font-medium">
-                                                              {cell.includes('$') ? (
-                                                                <span className="text-green-400 font-bold">{cell}</span>
-                                                              ) : (
-                                                                cell
-                                                              )}
-                                                            </div>
-                                                          </div>
-                                                        );
-                                                      })}
-                                                    </div>
-                                                  )}
-                                                </div>
-                                              </div>
-                                            </div>
-                                          );
-                                        } else {
-                                          // Standard card display for other sections
-                                          return (
-                                            <div key={index} className="ml-6 mb-4">
-                                              <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-gray-700/20 to-gray-600/20 rounded-xl border border-gray-600/40 hover:border-gray-500/40 transition-all">
-                                                <div className="w-3 h-3 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
-                                                <div className="flex-1">
-                                                  <div className="font-bold text-gray-300 text-lg mb-2">{firstCell}</div>
-                                                  {restCells.length > 0 && (
-                                                    <div className="space-y-2">
-                                                      {restCells.map((cell, cellIndex) => (
-                                                        <div key={cellIndex} className="text-gray-200 leading-relaxed">
-                                                          {cell.includes('✅') ? (
-                                                            <span className="text-green-400">{cell}</span>
-                                                          ) : (
-                                                            cell
-                                                          )}
-                                                        </div>
-                                                      ))}
-                                                    </div>
-                                                  )}
-                                                </div>
-                                              </div>
-                                            </div>
-                                          );
-                                        }
-                                      }
-                                    }
-                                  }
-                                  
-                                  // Bullet points with bullet symbol •
-                                  if (cleanLine.startsWith('•')) {
-                                    return (
-                                      <div key={index} className="ml-6 mb-3">
-                                        <div className="flex items-start gap-3 p-3 bg-gray-700/20 rounded-lg border border-gray-600/30 hover:border-emerald-500/40 transition-colors">
-                                          <div className="w-2 h-2 bg-emerald-400 rounded-full mt-2 flex-shrink-0"></div>
-                                          <span className="text-gray-200 leading-relaxed">{cleanLine.substring(1).trim()}</span>
-                                        </div>
-                                      </div>
-                                    );
-                                  }
-                                  
-                                  // Model names as standalone items
-                                  if (cleanLine.match(/^(Nova Lite|Mistral Small|Claude|Llama|GPT|Titan)$/)) {
-                                    return (
-                                      <div key={index} className="ml-8 mb-2">
-                                        <div className="inline-block px-4 py-2 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-full border border-emerald-500/30">
-                                          <span className="font-bold text-emerald-300">{cleanLine}</span>
-                                        </div>
-                                      </div>
-                                    );
-                                  }
-                                  
-                                  // Description lines for models (following model names)
-                                  if (cleanLine.match(/^(High quality|Best low-cost|Ideal for|Cost-effective)/)) {
-                                    return (
-                                      <div key={index} className="ml-12 mb-4">
-                                        <span className="text-gray-300 text-sm italic">{cleanLine}</span>
-                                      </div>
-                                    );
-                                  }
-                                  
-                                  // Executive Summary special formatting
-                                  if (cleanLine.includes('Executive Summary:')) {
-                                    return (
-                                      <div key={index} className="mt-6 p-6 bg-gradient-to-br from-emerald-500/15 to-teal-500/15 rounded-xl border border-emerald-500/30">
-                                        <h4 className="text-lg font-bold text-emerald-300 mb-3">Executive Summary</h4>
-                                        <p className="text-gray-200 leading-relaxed">
-                                          {cleanLine.replace('Executive Summary:', '').trim()}
-                                        </p>
-                                      </div>
-                                    );
-                                  }
-                                  
-                                  // Final summary note
-                                  if (cleanLine.includes('This report is tailored')) {
-                                    return (
-                                      <div key={index} className="mt-6 p-4 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-lg border border-blue-500/20 text-center">
-                                        <span className="text-blue-300 font-medium">{cleanLine}</span>
-                                      </div>
-                                    );
-                                  }
-                                  
-                                  // Default content with proper spacing
-                                  return (
-                                    <div key={index} className="ml-2 mb-2 text-gray-200 leading-relaxed">
-                                      {cleanLine}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          ) : (
-                            // Placeholder content when no response
-                            <div className="space-y-6 text-gray-400">
-                              <div className="text-2xl font-bold text-emerald-400 mb-4 pb-3 border-b border-gray-600/50">
-                                ✅ AI Cost Optimization Report
-                              </div>
-                              
-                              <div className="space-y-4">
-                                <div className="text-xl font-bold text-cyan-300 mb-3">🧠 Recommended LLM(s):</div>
-                                <div className="ml-4 space-y-1 text-gray-400">
-                                  <div>Analyzing your requirements...</div>
-                                  <div>Evaluating cost-effective models...</div>
-                                  <div>Calculating optimal configurations...</div>
-                                </div>
-                                
-                                <div className="text-xl font-bold text-cyan-300 mb-3">💰 Estimated Monthly Cost:</div>
-                                <div className="ml-4 space-y-1 text-gray-400">
-                                  <div>Processing cost calculations...</div>
-                                </div>
-                                
-                                <div className="text-xl font-bold text-cyan-300 mb-3">🛠️ Suggested Architecture:</div>
-                                <div className="ml-4 space-y-1 text-gray-400">
-                                  <div>Recommending optimal deployment strategy...</div>
-                                </div>
-                                
-                                <div className="text-xl font-bold text-cyan-300 mb-3">📈 Estimated ROI:</div>
-                                <div className="ml-4 space-y-1 text-gray-400">
-                                  <div>Calculating return on investment...</div>
-                                </div>
-                                
-                                <div className="text-xl font-bold text-cyan-300 mb-3">📊 Model Comparison:</div>
-                                <div className="space-y-3">
-                                  {/* Loading cards instead of table */}
-                                  <div className="bg-gray-700/20 rounded-xl p-4 border border-gray-600/30 animate-pulse">
-                                    <div className="flex items-center gap-3 mb-3">
-                                      <div className="w-3 h-3 bg-emerald-400 rounded-full opacity-50"></div>
-                                      <div className="h-4 bg-gray-600 rounded w-24"></div>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                      <div className="space-y-2">
-                                        <div className="h-3 bg-gray-600 rounded w-16"></div>
-                                        <div className="h-3 bg-gray-600 rounded w-20"></div>
-                                      </div>
-                                      <div className="space-y-2">
-                                        <div className="h-3 bg-gray-600 rounded w-14"></div>
-                                        <div className="h-3 bg-gray-600 rounded w-24"></div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  
-                                  <div className="bg-gray-700/20 rounded-xl p-4 border border-gray-600/30 animate-pulse delay-100">
-                                    <div className="flex items-center gap-3 mb-3">
-                                      <div className="w-3 h-3 bg-emerald-400 rounded-full opacity-50"></div>
-                                      <div className="h-4 bg-gray-600 rounded w-28"></div>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                      <div className="space-y-2">
-                                        <div className="h-3 bg-gray-600 rounded w-18"></div>
-                                        <div className="h-3 bg-gray-600 rounded w-16"></div>
-                                      </div>
-                                      <div className="space-y-2">
-                                        <div className="h-3 bg-gray-600 rounded w-20"></div>
-                                        <div className="h-3 bg-gray-600 rounded w-22"></div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                                
-                                <div className="text-xl font-bold text-cyan-300 mb-3">🎯 Lyzr Credit Planner:</div>
-                                <div className="ml-4 space-y-1 text-gray-400">
-                                  <div>Calculating credit requirements...</div>
-                                </div>
-                                
-                                <div className="text-xl font-bold text-cyan-300 mb-3">⚠ Optimization Tips:</div>
-                                <div className="ml-4 space-y-1 text-gray-400">
-                                  <div>Generating optimization recommendations...</div>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {/* Fallback Content Display */}
-                      {(!result.response || result.response.trim().length < 100) && (
-                        <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-2xl p-8 border border-gray-700/50">
-                          <div className="text-center">
-                            <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                              <span className="text-2xl">⚠️</span>
-                            </div>
-                            <h3 className="text-xl font-bold text-white mb-2">Content Loading Issue</h3>
-                            <p className="text-gray-400 mb-4">The analysis content is being processed. Please try refreshing or generating a new report.</p>
-                            <Button 
-                              onClick={handleSubmit}
-                              className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2 rounded-lg"
-                            >
-                              Regenerate Report
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                        ),
+                        thead: ({node, ...props}) => <thead className="border-b border-white/20" {...props} />,
+                        th: ({node, ...props}) => (
+                          <th className="text-left py-4 px-4 font-bold text-white text-sm uppercase tracking-wider" {...props} />
+                        ),
+                        tbody: ({node, ...props}) => <tbody {...props} />,
+                        tr: ({node, ...props}) => <tr className="border-b border-white/10 hover:bg-white/5 transition-colors" {...props} />,
+                        td: ({node, children, ...props}) => {
+                          const text = children?.toString() || '';
+                          let className = "py-4 px-4 text-gray-200";
+                          
+                          if (text.includes('$') || text.includes('%') || text.includes('weeks')) {
+                            className += " font-bold text-emerald-300";
+                          } else if (text.includes('Nova') || text.includes('Claude') || text.includes('Mistral')) {
+                            className += " font-semibold text-cyan-300";
+                          }
+                          
+                          return <td className={className} {...props}>{children}</td>;
+                        },
+                        p: ({node, children, ...props}) => (
+                          <p className="text-gray-200 leading-relaxed mb-4" {...props} />
+                        ),
+                        strong: ({node, children, ...props}) => (
+                          <strong className="text-emerald-300 font-bold" {...props} />
+                        ),
+                        code: ({node, ...props}) => (
+                          <code className="bg-gray-800 text-emerald-300 px-2 py-1 rounded text-sm font-mono" {...props} />
+                        ),
+                      }}
+                    />
                   </div>
 
                   {/* Sidebar with Key Info */}
@@ -1273,9 +887,239 @@ export default function OptimizationForm() {
                 </div>
               </div>
             )}
-
+                <ReactMarkdown
+                  children={result.response.replace(/^```markdown\n/, '').replace(/\n```$/, '')}
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    h1: ({node, children, ...props}) => {
+                      const text = children?.toString() || '';
+                      let icon = '🎯';
+                      let gradientFrom = 'from-emerald-500/20';
+                      let gradientTo = 'to-teal-500/20';
+                      let borderColor = 'border-emerald-400';
+                      
+                      if (text.includes('Input Context')) {
+                        icon = '📝';
+                        gradientFrom = 'from-blue-500/20';
+                        gradientTo = 'to-indigo-500/20';
+                        borderColor = 'border-blue-400';
+                      } else if (text.includes('Structured Output')) {
+                        icon = '📋';
+                        gradientFrom = 'from-purple-500/20';
+                        gradientTo = 'to-pink-500/20';
+                        borderColor = 'border-purple-400';
+                      }
+                      
+                      return (
+                        <div className={`bg-gradient-to-r ${gradientFrom} ${gradientTo} border-l-4 ${borderColor} rounded-r-lg px-6 py-4 my-8 shadow-lg`}>
+                          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+                            <span className="text-3xl">{icon}</span>
+                            <span>{text.replace(/🎯|📝|📋/g, '').trim()}</span>
+                          </h1>
+                        </div>
+                      );
+                    },
+                    h2: ({node, children, ...props}) => {
+                      const text = children?.toString() || '';
+                      let icon = '📊';
+                      let gradientFrom = 'from-blue-500/15';
+                      let gradientTo = 'to-purple-500/15';
+                      let borderColor = 'border-blue-400';
+                      
+                      if (text.includes('Input Context')) {
+                        icon = '📝';
+                      } else if (text.includes('Structured Output')) {
+                        icon = '📋';
+                      }
+                      
+                      return (
+                        <div className={`bg-gradient-to-r ${gradientFrom} ${gradientTo} border-l-4 ${borderColor} rounded-r-lg px-4 py-3 my-6 shadow-md`}>
+                          <h2 className="text-2xl font-bold text-blue-300 flex items-center gap-2">
+                            <span className="text-2xl">{icon}</span>
+                            <span>{text.replace(/📊|📝|📋/g, '').trim()}</span>
+                          </h2>
+                        </div>
+                      );
+                    },
+                    h3: ({node, children, ...props}) => {
+                      const text = children?.toString() || '';
+                      let icon = '🔍';
+                      let bgColor = 'from-cyan-500 to-blue-500';
+                      
+                      if (text.includes('LLM Recommendations')) {
+                        icon = '🔍';
+                        bgColor = 'from-emerald-500 to-teal-500';
+                      } else if (text.includes('Token Cost')) {
+                        icon = '�';
+                        bgColor = 'from-yellow-500 to-orange-500';
+                      } else if (text.includes('Credit Usage')) {
+                        icon = '⚠️';
+                        bgColor = 'from-amber-500 to-red-500';
+                      } else if (text.includes('ROI') || text.includes('Payback')) {
+                        icon = '📈';
+                        bgColor = 'from-green-500 to-emerald-500';
+                      } else if (text.includes('Agent Architecture')) {
+                        icon = '🏗️';
+                        bgColor = 'from-purple-500 to-indigo-500';
+                      } else if (text.includes('Infrastructure')) {
+                        icon = '⚙️';
+                        bgColor = 'from-gray-500 to-slate-500';
+                      } else if (text.includes('Cost-saving')) {
+                        icon = '�';
+                        bgColor = 'from-teal-500 to-cyan-500';
+                      } else if (text.includes('LLM Match Score')) {
+                        icon = '🧠';
+                        bgColor = 'from-pink-500 to-rose-500';
+                      } else if (text.includes('Final Summary')) {
+                        icon = '📄';
+                        bgColor = 'from-blue-500 to-indigo-500';
+                      }
+                      
+                      return (
+                        <div className="flex items-center gap-3 mt-8 mb-4 pb-3 border-b border-gray-600/50">
+                          <div className={`w-10 h-10 bg-gradient-to-r ${bgColor} rounded-xl flex items-center justify-center shadow-lg`}>
+                            <span className="text-xl">{icon}</span>
+                          </div>
+                          <h3 className="text-2xl font-bold text-cyan-300">
+                            {text.replace(/🔍|💰|⚠️|📈|🏗️|⚙️|💡|🧠|📄|[0-9]+\./g, '').trim()}
+                          </h3>
+                        </div>
+                      );
+                    },
+                    ul: ({node, ...props}) => <ul className="list-none pl-0 mb-6 space-y-3 text-gray-200" {...props} />,
+                    ol: ({node, ...props}) => <ol className="list-decimal pl-6 mb-6 space-y-3 text-gray-200" {...props} />,
+                    li: ({node, children, ...props}) => {
+                      const text = children?.toString() || '';
+                      let icon = <CheckCircle2 className="h-5 w-5 text-emerald-400 flex-shrink-0 mt-0.5" />;
+                      let bgClass = "bg-gray-800/40 border-emerald-400/50 hover:border-emerald-400";
+                      
+                      if (text.includes('High') && (text.includes('Credit Usage') || text.includes('consumption'))) {
+                        icon = <AlertTriangle className="h-5 w-5 text-amber-400 flex-shrink-0 mt-0.5" />;
+                        bgClass = "bg-amber-500/10 border-amber-400/50 hover:border-amber-400";
+                      } else if (text.includes('Medium') && (text.includes('Credit Usage') || text.includes('consumption'))) {
+                        icon = <Info className="h-5 w-5 text-blue-400 flex-shrink-0 mt-0.5" />;
+                        bgClass = "bg-blue-500/10 border-blue-400/50 hover:border-blue-400";
+                      }
+                      
+                      return (
+                        <li className={`${bgClass} rounded-xl px-5 py-4 border-l-4 transition-all duration-200 flex items-start gap-3 shadow-sm hover:shadow-md`}>
+                          {icon}
+                          <span className="text-gray-200 leading-relaxed">{children}</span>
+                        </li>
+                      );
+                    },
+                    table: ({node, ...props}) => (
+                      <div className="overflow-x-auto my-8 rounded-xl border border-gray-600 shadow-xl bg-gray-800/30 backdrop-blur-sm">
+                        <table className="min-w-full text-sm text-left" {...props} />
+                      </div>
+                    ),
+                    thead: ({node, ...props}) => <thead className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white" {...props} />,
+                    th: ({node, ...props}) => <th className="px-6 py-4 font-bold text-white border-r border-emerald-500/30 last:border-r-0 tracking-wide text-sm uppercase" {...props} />,
+                    tbody: ({node, ...props}) => <tbody className="divide-y divide-gray-600/50" {...props} />,
+                    tr: ({node, ...props}) => <tr className="hover:bg-gray-700/30 transition-colors duration-200" {...props} />,
+                    td: ({node, children, ...props}) => {
+                      const text = children?.toString() || '';
+                      let className = "px-6 py-4 text-gray-200 border-r border-gray-600/30 last:border-r-0";
+                      
+                      // Highlight important values
+                      if (text.includes('$') || text.includes('%') || text.includes('ROI') || text.includes('weeks')) {
+                        className += " font-bold text-emerald-300 bg-emerald-500/10";
+                      } else if (text.includes('Nova Lite') || text.includes('Mistral Small') || text.includes('Claude')) {
+                        className += " font-semibold text-cyan-300 bg-cyan-500/10";
+                      } else if (text.includes('High') && (text.includes('quality') || text.includes('efficiency'))) {
+                        className += " text-emerald-400 font-medium";
+                      } else if (text.includes('High') && text.includes('usage')) {
+                        className += " text-amber-400 font-medium";
+                      }
+                      
+                      return <td className={className} {...props} />;
+                    },
+                    code: ({node, ...props}) => <code className="bg-emerald-900/40 text-emerald-300 px-3 py-1 rounded-md font-mono text-sm border border-emerald-700/50" {...props} />,
+                    p: ({node, children, ...props}) => {
+                      const text = children?.toString() || '';
+                      let className = "mb-4 text-gray-200 leading-relaxed text-base";
+                      
+                      // Special styling for executive summary
+                      if (text.includes('Executive Summary')) {
+                        className = "mb-6 text-xl text-white leading-relaxed bg-gradient-to-r from-gray-800/80 to-gray-700/80 p-6 rounded-xl border border-gray-600/50 shadow-lg backdrop-blur-sm";
+                      }
+                      
+                      return <p className={className} {...props} />;
+                    },
+                    strong: ({node, children, ...props}) => {
+                      const text = children?.toString() || '';
+                      let className = "text-emerald-400 font-bold";
+                      
+                      if (text.includes('Executive Summary')) {
+                        className = "text-amber-300 font-bold text-2xl";
+                      }
+                      
+                      return <strong className={className} {...props} />;
+                    },
+                    hr: ({node, ...props}) => (
+                      <div className="my-10 h-px bg-gradient-to-r from-transparent via-emerald-500 to-transparent opacity-40" {...props} />
+                    ),
+                  }}
+                />
+                
+                {/* Quick Action Recommendations */}
+                <div className="mt-10 bg-gradient-to-br from-emerald-500/15 to-teal-500/15 rounded-2xl p-8 border border-emerald-500/30 backdrop-blur-sm">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="p-3 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl shadow-lg">
+                      <Target className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-emerald-400">Quick Action Items</h3>
+                      <p className="text-gray-300 text-sm">Immediate steps to optimize your AI costs</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-600/30">
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="w-3 h-3 bg-emerald-400 rounded-full"></div>
+                        <h4 className="font-bold text-white text-lg">Immediate Steps</h4>
+                      </div>
+                      <ul className="space-y-3 text-gray-300">
+                        <li className="flex items-start gap-3">
+                          <div className="w-2 h-2 bg-emerald-400 rounded-full mt-2 flex-shrink-0"></div>
+                          <span>Set up AWS Bedrock with Nova Lite</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <div className="w-2 h-2 bg-emerald-400 rounded-full mt-2 flex-shrink-0"></div>
+                          <span>Configure serverless Lambda triggers</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <div className="w-2 h-2 bg-emerald-400 rounded-full mt-2 flex-shrink-0"></div>
+                          <span>Implement caching for frequent queries</span>
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-600/30">
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="w-3 h-3 bg-teal-400 rounded-full"></div>
+                        <h4 className="font-bold text-white text-lg">Cost Optimization</h4>
+                      </div>
+                      <ul className="space-y-3 text-gray-300">
+                        <li className="flex items-start gap-3">
+                          <div className="w-2 h-2 bg-teal-400 rounded-full mt-2 flex-shrink-0"></div>
+                          <span>Use embeddings for FAQ responses</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <div className="w-2 h-2 bg-teal-400 rounded-full mt-2 flex-shrink-0"></div>
+                          <span>Batch processing for reports</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <div className="w-2 h-2 bg-teal-400 rounded-full mt-2 flex-shrink-0"></div>
+                          <span>Monitor and adjust token usage</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-6">
+            <div className="flex flex-col sm:flex-row gap-6 opacity-0 animate-fade-in" style={{animationDelay: '0.5s', animationFillMode: 'forwards'}}>
               <Button 
                 onClick={downloadPDF}
                 className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-4 shadow-xl transition-all transform hover:scale-[1.02] border-0 relative overflow-hidden group"
@@ -1319,7 +1163,6 @@ export default function OptimizationForm() {
                 </div>
               </Button>
             </div>
-
             {/* Raw Data */}
             {showRaw && (
               <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-700/50 p-6">

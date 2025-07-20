@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Loader2, Download, Mail, Eye, EyeOff, TrendingUp, DollarSign, Zap, Target, Award, BarChart3, CheckCircle2, AlertTriangle, Info } from "lucide-react"
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 const suggestedUseCases = {
   Fintech: "Summarize transactions, generate reports, multilingual chatbot",
@@ -644,477 +646,306 @@ export default function OptimizationForm() {
                           <h3 className="text-2xl font-bold text-white">✅ AI Cost Optimization Report</h3>
                         </div>
                         
-                        {/* LLM Response Container - Enhanced for Lyzr Output */}
+                        {/* LLM Response Container */}
                         <div className="bg-gray-800/30 rounded-2xl p-6 border border-gray-700/50">
-                          {result.response ? (
-                            <div className="space-y-6">
-                              {/* Render actual LLM response with enhanced formatting */}
-                              <div 
-                                className="text-gray-100 leading-relaxed whitespace-pre-wrap"
-                                style={{ 
-                                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                                  lineHeight: '1.6'
-                                }}
-                              >
-                                {result.response.split('\n').map((line, index) => {
-                                  const trimmedLine = line.trim();
-                                  
-                                  // Debug logging for troubleshooting
-                                  if (trimmedLine.toLowerCase().includes('llm') || trimmedLine.toLowerCase().includes('recommendations')) {
-                                    console.log('LLM line found:', trimmedLine);
-                                  }
-                                  
-                                  // Skip empty lines, markdown code blocks, and table separators
-                                  if (!trimmedLine || 
-                                      trimmedLine === '```markdown' || 
-                                      trimmedLine === '```' || 
-                                      trimmedLine === '---' ||
-                                      /^\|\s*---/.test(trimmedLine) ||
-                                      /^[\|\s\-]+$/.test(trimmedLine)) {
-                                    return <div key={index} className="h-2"></div>;
-                                  }
-                                  
-                                  // Clean markdown formatting
-                                  const cleanLine = trimmedLine
-                                    .replace(/^###\s*/, '')
-                                    .replace(/^##\s*/, '')
-                                    .replace(/^#\s*/, '')
-                                    .replace(/^\*\*(.+)\*\*$/, '$1')
-                                    .replace(/\*\*(.+?)\*\*/g, '$1');
-                                  
-                                  // Main report title (✅ AI Cost Optimization Report)
-                                  if (cleanLine.startsWith('✅')) {
-                                    return (
-                                      <div key={index} className="text-2xl font-bold text-emerald-400 mb-6 pb-4 border-b border-emerald-500/30 flex items-center gap-3">
-                                        <span className="text-3xl">✅</span>
-                                        <span>{cleanLine.replace('✅', '').trim()}</span>
-                                      </div>
-                                    );
-                                  }
-                                  
-                                  // Main section headers (🎯 AIntellicost Enterprise AI Cost Optimization Report)
-                                  if (cleanLine.match(/^🎯.*Report$/)) {
-                                    return (
-                                      <div key={index} className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 mb-8 text-center">
-                                        {cleanLine}
-                                      </div>
-                                    );
-                                  }
-                                  
-                                  // Section headers with numbers (1. 🔍 LLM Recommendations) - Enhanced matching
-                                  if (cleanLine.match(/^\d+\.\s*[🔍📊⚠️🧮🛠⚙️📦🧠📄]/)) {
-                                    const parts = cleanLine.match(/^(\d+)\.\s*([🔍📊⚠️🧮🛠⚙️📦🧠📄])\s*(.+)$/);
-                                    if (parts) {
-                                      return (
-                                        <div key={index} className="mt-8 mb-4">
-                                          <div className="flex items-center gap-4 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-xl p-5 border border-indigo-500/30">
-                                            <div className="flex items-center gap-2">
-                                              <span className="text-sm font-bold text-indigo-300 bg-indigo-500/30 rounded-full w-8 h-8 flex items-center justify-center">{parts[1]}</span>
-                                              <span className="text-2xl">{parts[2]}</span>
-                                            </div>
-                                            <h3 className="text-xl font-bold text-indigo-300">{parts[3]}</h3>
-                                          </div>
-                                        </div>
-                                      );
-                                    }
-                                  }
-                                  
-                                  // Alternative section header format (without emoji)
-                                  if (cleanLine.match(/^\d+\.\s*(LLM\s+Recommendations|Token\s+Cost|Credit\s+Usage|ROI\s+.*Analysis|Agent\s+Architecture|Infrastructure\s+Optimization|Cost-saving\s+Strategies|Match\s+Score|Final\s+Summary)/i)) {
-                                    const parts = cleanLine.match(/^(\d+)\.\s*(.+)$/);
-                                    if (parts) {
-                                      // Add appropriate emoji based on content
-                                      let emoji = '📊';
-                                      if (parts[2].toLowerCase().includes('llm') || parts[2].toLowerCase().includes('recommendations')) emoji = '🔍';
-                                      else if (parts[2].toLowerCase().includes('cost') || parts[2].toLowerCase().includes('token')) emoji = '💰';
-                                      else if (parts[2].toLowerCase().includes('credit') || parts[2].toLowerCase().includes('usage')) emoji = '⚠️';
-                                      else if (parts[2].toLowerCase().includes('roi') || parts[2].toLowerCase().includes('analysis')) emoji = '🧮';
-                                      else if (parts[2].toLowerCase().includes('architecture') || parts[2].toLowerCase().includes('agent')) emoji = '🛠️';
-                                      else if (parts[2].toLowerCase().includes('infrastructure') || parts[2].toLowerCase().includes('optimization')) emoji = '⚙️';
-                                      else if (parts[2].toLowerCase().includes('strategies') || parts[2].toLowerCase().includes('saving')) emoji = '📦';
-                                      else if (parts[2].toLowerCase().includes('score') || parts[2].toLowerCase().includes('match')) emoji = '🧠';
-                                      else if (parts[2].toLowerCase().includes('summary') || parts[2].toLowerCase().includes('final')) emoji = '📄';
-                                      
-                                      return (
-                                        <div key={index} className="mt-8 mb-4">
-                                          <div className="flex items-center gap-4 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-xl p-5 border border-indigo-500/30">
-                                            <div className="flex items-center gap-2">
-                                              <span className="text-sm font-bold text-indigo-300 bg-indigo-500/30 rounded-full w-8 h-8 flex items-center justify-center">{parts[1]}</span>
-                                              <span className="text-2xl">{emoji}</span>
-                                            </div>
-                                            <h3 className="text-xl font-bold text-indigo-300">{parts[2]}</h3>
-                                          </div>
-                                        </div>
-                                      );
-                                    }
-                                  }
-                                  
-                                  // Skip Input Context (📝) section completely
-                                  if (cleanLine.match(/^📝/)) {
-                                    return <div key={index} className="h-1"></div>;
-                                  }
-                                  
-                                  // Show only Structured Output (📋) section with beautiful styling
-                                  if (cleanLine.match(/^📋/)) {
-                                    const emoji = cleanLine.charAt(0);
-                                    const text = cleanLine.substring(1).trim();
-                                    return (
-                                      <div key={index} className="mt-6 mb-4">
-                                        <div className="flex items-center gap-3 bg-gradient-to-r from-cyan-500/15 to-blue-500/15 rounded-lg p-4 border border-cyan-500/25">
-                                          <span className="text-xl">{emoji}</span>
-                                          <h4 className="text-lg font-bold text-cyan-300">{text}</h4>
-                                        </div>
-                                      </div>
-                                    );
-                                  }
-                                  
-                                  // Enhanced Table detection - handle all table formats properly
-                                  if (cleanLine.includes('|')) {
-                                    const cells = cleanLine.split('|').map(cell => cell.trim()).filter(cell => cell && cell !== '---' && cell !== '');
-                                    
-                                    if (cells.length > 1) {
-                                      // Skip table headers and separators
-                                      const isHeaderRow = cells.some(cell => 
-                                        cell.toLowerCase().includes('field') || 
-                                        cell.toLowerCase().includes('model') || 
-                                        cell.toLowerCase().includes('metric') ||
-                                        cell.toLowerCase().includes('action') ||
-                                        cell.toLowerCase().includes('recommendation') ||
-                                        cell.toLowerCase().includes('llm model') ||
-                                        cell.toLowerCase().includes('cost') ||
-                                        cell.toLowerCase().includes('latency') ||
-                                        cell.toLowerCase().includes('quality') ||
-                                        cell.toLowerCase().includes('reasoning') ||
-                                        cell.toLowerCase().includes('context') ||
-                                        cell.toLowerCase().includes('final score') ||
-                                        cell.toLowerCase().includes('reason') ||
-                                        cell.toLowerCase().includes('details') ||
-                                        cell.toLowerCase().includes('value') ||
-                                        cell.toLowerCase().includes('notes') ||
-                                        cell.toLowerCase().includes('est. tokens/task') ||
-                                        cell.toLowerCase().includes('est. monthly cost') ||
-                                        cell.toLowerCase().includes('credit usage') ||
-                                        cell.toLowerCase().includes('optimization tips')
-                                      );
-                                      
-                                      const isSeparatorRow = cells.every(cell => /^[-\s]*$/.test(cell));
-                                      
-                                      // Check if we're in the LLM Recommendations section
-                                      const isInLLMSection = (() => {
-                                        // Look backwards to see if we recently saw an LLM Recommendations header
-                                        const lookbackLines = result.response.split('\n').slice(0, index);
-                                        const recentLines = lookbackLines.slice(-10); // Look at last 10 lines
-                                        return recentLines.some(line => 
-                                          line.includes('LLM Recommendations') || 
-                                          line.includes('🔍 LLM Recommendations')
-                                        );
-                                      })();
-                                      
-                                      // Check if we're in the Token Cost Estimation section
-                                      const isInTokenCostSection = (() => {
-                                        // Look backwards to see if we recently saw a Token Cost header
-                                        const lookbackLines = result.response.split('\n').slice(0, index);
-                                        const recentLines = lookbackLines.slice(-10); // Look at last 10 lines
-                                        return recentLines.some(line => 
-                                          line.includes('Token Cost') || 
-                                          line.includes('💰 Token Cost') ||
-                                          line.includes('📊 Token Cost')
-                                        );
-                                      })();
-                                      
-                                      if (isSeparatorRow) {
-                                        // Skip separators
-                                        return <div key={index} className="h-1"></div>;
-                                      } else if (isHeaderRow && (isInLLMSection || isInTokenCostSection)) {
-                                        // Display header as styled header for LLM section and Token Cost section
-                                        return (
-                                          <div key={index} className="ml-6 mb-2">
-                                            <div className="bg-gradient-to-r from-indigo-600/30 to-purple-600/30 rounded-lg p-3 border border-indigo-500/30">
-                                              <div className={`grid gap-4 text-sm font-bold text-indigo-200 ${cells.length <= 2 ? 'grid-cols-2' : cells.length === 3 ? 'grid-cols-3' : 'grid-cols-4'}`}>
-                                                {cells.map((cell, cellIndex) => (
-                                                  <div key={cellIndex} className="text-center">{cell}</div>
-                                                ))}
-                                              </div>
-                                            </div>
-                                          </div>
-                                        );
-                                      } else if (isHeaderRow) {
-                                        // Skip headers for non-LLM sections (original behavior)
-                                        return <div key={index} className="h-1"></div>;
-                                      } else {
-                                        // Convert table rows to enhanced cards
-                                        const [firstCell, ...restCells] = cells;
-                                        
-                                        // Special handling for score tables (LLM Match Score Table)
-                                        if (restCells.length >= 5 && restCells.some(cell => cell.includes('✅'))) {
-                                          return (
-                                            <div key={index} className="ml-6 mb-4">
-                                              <div className="bg-gradient-to-r from-slate-800/50 to-gray-800/50 rounded-xl border border-gray-600/40 hover:border-emerald-500/30 transition-all overflow-hidden">
-                                                {/* Model name header */}
-                                                <div className="bg-gradient-to-r from-emerald-600/20 to-teal-600/20 p-4 border-b border-gray-600/30">
-                                                  <h4 className="font-bold text-emerald-300 text-lg flex items-center gap-2">
-                                                    <span className="w-2 h-2 bg-emerald-400 rounded-full"></span>
-                                                    {firstCell}
-                                                  </h4>
-                                                </div>
-                                                {/* Metrics grid */}
-                                                <div className="p-4">
-                                                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-                                                    {restCells.map((cell, cellIndex) => {
-                                                      const labels = ['Cost Efficiency', 'Latency', 'Quality', 'Reasoning', 'Context Length', 'Final Score'];
-                                                      const label = labels[cellIndex] || `Metric ${cellIndex + 1}`;
-                                                      
-                                                      return (
-                                                        <div key={cellIndex} className="text-center">
-                                                          <div className="text-xs text-gray-400 mb-1 uppercase tracking-wide">{label}</div>
-                                                          <div className="text-lg font-semibold">
-                                                            {cell.includes('✅') ? (
-                                                              <span className="text-green-400">{cell}</span>
-                                                            ) : (
-                                                              <span className="text-white">{cell}</span>
-                                                            )}
-                                                          </div>
-                                                        </div>
-                                                      );
-                                                    })}
-                                                  </div>
-                                                </div>
-                                              </div>
-                                            </div>
-                                          );
-                                        } else if (isInLLMSection) {
-                                          // Enhanced card display for LLM Recommendations section
-                                          return (
-                                            <div key={index} className="ml-6 mb-4">
-                                              <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-gray-700/20 to-gray-600/20 rounded-xl border border-gray-600/40 hover:border-emerald-500/40 transition-all">
-                                                <div className="w-3 h-3 bg-emerald-400 rounded-full mt-2 flex-shrink-0"></div>
-                                                <div className="flex-1">
-                                                  <div className="font-bold text-emerald-300 text-lg mb-2">{firstCell}</div>
-                                                  {restCells.length > 0 && (
-                                                    <div className="space-y-2">
-                                                      {restCells.map((cell, cellIndex) => (
-                                                        <div key={cellIndex} className="text-gray-200 leading-relaxed">
-                                                          {cell.includes('✅') ? (
-                                                            <span className="text-green-400">{cell}</span>
-                                                          ) : (
-                                                            cell
-                                                          )}
-                                                        </div>
-                                                      ))}
-                                                    </div>
-                                                  )}
-                                                </div>
-                                              </div>
-                                            </div>
-                                          );
-                                        } else if (isInTokenCostSection) {
-                                          // Enhanced card display for Token Cost Estimation section
-                                          return (
-                                            <div key={index} className="ml-6 mb-4">
-                                              <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-blue-700/20 to-indigo-600/20 rounded-xl border border-blue-600/40 hover:border-blue-500/40 transition-all">
-                                                <div className="w-3 h-3 bg-blue-400 rounded-full mt-2 flex-shrink-0"></div>
-                                                <div className="flex-1">
-                                                  <div className="font-bold text-blue-300 text-lg mb-2">{firstCell}</div>
-                                                  {restCells.length > 0 && (
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                                                      {restCells.map((cell, cellIndex) => {
-                                                        // Define column headers for token cost table
-                                                        const headers = ['Est. Tokens/Task', 'Est. Monthly Cost', 'Notes'];
-                                                        const header = headers[cellIndex] || `Detail ${cellIndex + 1}`;
-                                                        
-                                                        return (
-                                                          <div key={cellIndex} className="bg-blue-500/10 rounded-lg p-3 border border-blue-500/20">
-                                                            <div className="text-xs text-blue-300 mb-1 uppercase tracking-wide font-semibold">{header}</div>
-                                                            <div className="text-white font-medium">
-                                                              {cell.includes('$') ? (
-                                                                <span className="text-green-400 font-bold">{cell}</span>
-                                                              ) : (
-                                                                cell
-                                                              )}
-                                                            </div>
-                                                          </div>
-                                                        );
-                                                      })}
-                                                    </div>
-                                                  )}
-                                                </div>
-                                              </div>
-                                            </div>
-                                          );
-                                        } else {
-                                          // Standard card display for other sections
-                                          return (
-                                            <div key={index} className="ml-6 mb-4">
-                                              <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-gray-700/20 to-gray-600/20 rounded-xl border border-gray-600/40 hover:border-gray-500/40 transition-all">
-                                                <div className="w-3 h-3 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
-                                                <div className="flex-1">
-                                                  <div className="font-bold text-gray-300 text-lg mb-2">{firstCell}</div>
-                                                  {restCells.length > 0 && (
-                                                    <div className="space-y-2">
-                                                      {restCells.map((cell, cellIndex) => (
-                                                        <div key={cellIndex} className="text-gray-200 leading-relaxed">
-                                                          {cell.includes('✅') ? (
-                                                            <span className="text-green-400">{cell}</span>
-                                                          ) : (
-                                                            cell
-                                                          )}
-                                                        </div>
-                                                      ))}
-                                                    </div>
-                                                  )}
-                                                </div>
-                                              </div>
-                                            </div>
-                                          );
-                                        }
-                                      }
-                                    }
-                                  }
-                                  
-                                  // Bullet points with bullet symbol •
-                                  if (cleanLine.startsWith('•')) {
-                                    return (
-                                      <div key={index} className="ml-6 mb-3">
-                                        <div className="flex items-start gap-3 p-3 bg-gray-700/20 rounded-lg border border-gray-600/30 hover:border-emerald-500/40 transition-colors">
-                                          <div className="w-2 h-2 bg-emerald-400 rounded-full mt-2 flex-shrink-0"></div>
-                                          <span className="text-gray-200 leading-relaxed">{cleanLine.substring(1).trim()}</span>
-                                        </div>
-                                      </div>
-                                    );
-                                  }
-                                  
-                                  // Model names as standalone items
-                                  if (cleanLine.match(/^(Nova Lite|Mistral Small|Claude|Llama|GPT|Titan)$/)) {
-                                    return (
-                                      <div key={index} className="ml-8 mb-2">
-                                        <div className="inline-block px-4 py-2 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-full border border-emerald-500/30">
-                                          <span className="font-bold text-emerald-300">{cleanLine}</span>
-                                        </div>
-                                      </div>
-                                    );
-                                  }
-                                  
-                                  // Description lines for models (following model names)
-                                  if (cleanLine.match(/^(High quality|Best low-cost|Ideal for|Cost-effective)/)) {
-                                    return (
-                                      <div key={index} className="ml-12 mb-4">
-                                        <span className="text-gray-300 text-sm italic">{cleanLine}</span>
-                                      </div>
-                                    );
-                                  }
-                                  
-                                  // Executive Summary special formatting
-                                  if (cleanLine.includes('Executive Summary:')) {
-                                    return (
-                                      <div key={index} className="mt-6 p-6 bg-gradient-to-br from-emerald-500/15 to-teal-500/15 rounded-xl border border-emerald-500/30">
-                                        <h4 className="text-lg font-bold text-emerald-300 mb-3">Executive Summary</h4>
-                                        <p className="text-gray-200 leading-relaxed">
-                                          {cleanLine.replace('Executive Summary:', '').trim()}
-                                        </p>
-                                      </div>
-                                    );
-                                  }
-                                  
-                                  // Final summary note
-                                  if (cleanLine.includes('This report is tailored')) {
-                                    return (
-                                      <div key={index} className="mt-6 p-4 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-lg border border-blue-500/20 text-center">
-                                        <span className="text-blue-300 font-medium">{cleanLine}</span>
-                                      </div>
-                                    );
-                                  }
-                                  
-                                  // Default content with proper spacing
-                                  return (
-                                    <div key={index} className="ml-2 mb-2 text-gray-200 leading-relaxed">
-                                      {cleanLine}
-                                    </div>
-                                  );
-                                })}
-                              </div>
+                          <div className="prose prose-invert prose-emerald max-w-none">
+                            <div 
+                              className="text-gray-200 leading-relaxed whitespace-pre-wrap font-mono text-sm"
+                              style={{ fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace' }}
+                            >
+                              {result.response?.replace(/^```markdown\n/, '').replace(/\n```$/, '') || 'No response available'}
                             </div>
-                          ) : (
-                            // Placeholder content when no response
-                            <div className="space-y-6 text-gray-400">
-                              <div className="text-2xl font-bold text-emerald-400 mb-4 pb-3 border-b border-gray-600/50">
-                                ✅ AI Cost Optimization Report
-                              </div>
-                              
-                              <div className="space-y-4">
-                                <div className="text-xl font-bold text-cyan-300 mb-3">🧠 Recommended LLM(s):</div>
-                                <div className="ml-4 space-y-1 text-gray-400">
-                                  <div>Analyzing your requirements...</div>
-                                  <div>Evaluating cost-effective models...</div>
-                                  <div>Calculating optimal configurations...</div>
-                                </div>
-                                
-                                <div className="text-xl font-bold text-cyan-300 mb-3">💰 Estimated Monthly Cost:</div>
-                                <div className="ml-4 space-y-1 text-gray-400">
-                                  <div>Processing cost calculations...</div>
-                                </div>
-                                
-                                <div className="text-xl font-bold text-cyan-300 mb-3">🛠️ Suggested Architecture:</div>
-                                <div className="ml-4 space-y-1 text-gray-400">
-                                  <div>Recommending optimal deployment strategy...</div>
-                                </div>
-                                
-                                <div className="text-xl font-bold text-cyan-300 mb-3">📈 Estimated ROI:</div>
-                                <div className="ml-4 space-y-1 text-gray-400">
-                                  <div>Calculating return on investment...</div>
-                                </div>
-                                
-                                <div className="text-xl font-bold text-cyan-300 mb-3">📊 Model Comparison:</div>
-                                <div className="space-y-3">
-                                  {/* Loading cards instead of table */}
-                                  <div className="bg-gray-700/20 rounded-xl p-4 border border-gray-600/30 animate-pulse">
-                                    <div className="flex items-center gap-3 mb-3">
-                                      <div className="w-3 h-3 bg-emerald-400 rounded-full opacity-50"></div>
-                                      <div className="h-4 bg-gray-600 rounded w-24"></div>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                      <div className="space-y-2">
-                                        <div className="h-3 bg-gray-600 rounded w-16"></div>
-                                        <div className="h-3 bg-gray-600 rounded w-20"></div>
-                                      </div>
-                                      <div className="space-y-2">
-                                        <div className="h-3 bg-gray-600 rounded w-14"></div>
-                                        <div className="h-3 bg-gray-600 rounded w-24"></div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  
-                                  <div className="bg-gray-700/20 rounded-xl p-4 border border-gray-600/30 animate-pulse delay-100">
-                                    <div className="flex items-center gap-3 mb-3">
-                                      <div className="w-3 h-3 bg-emerald-400 rounded-full opacity-50"></div>
-                                      <div className="h-4 bg-gray-600 rounded w-28"></div>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                      <div className="space-y-2">
-                                        <div className="h-3 bg-gray-600 rounded w-18"></div>
-                                        <div className="h-3 bg-gray-600 rounded w-16"></div>
-                                      </div>
-                                      <div className="space-y-2">
-                                        <div className="h-3 bg-gray-600 rounded w-20"></div>
-                                        <div className="h-3 bg-gray-600 rounded w-22"></div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                                
-                                <div className="text-xl font-bold text-cyan-300 mb-3">🎯 Lyzr Credit Planner:</div>
-                                <div className="ml-4 space-y-1 text-gray-400">
-                                  <div>Calculating credit requirements...</div>
-                                </div>
-                                
-                                <div className="text-xl font-bold text-cyan-300 mb-3">⚠ Optimization Tips:</div>
-                                <div className="ml-4 space-y-1 text-gray-400">
-                                  <div>Generating optimization recommendations...</div>
-                                </div>
-                              </div>
-                            </div>
-                          )}
+                          </div>
                         </div>
                       </div>
+                          h1: ({children, ...props}) => {
+                            const text = React.Children.toArray(children).join('');
+                            const cleanText = text.replace(/🎯|📝|📋|[0-9]+\.\s*|#\s*/g, '').trim();
+                            if (!cleanText) return null;
+                            
+                            return (
+                              <div className="bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 rounded-2xl p-6 border border-indigo-500/20 mb-8">
+                                <h1 className="text-3xl font-bold text-white flex items-center gap-4">
+                                  <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center">
+                                    <span className="text-xl">🎯</span>
+                                  </div>
+                                  <span>{cleanText}</span>
+                                </h1>
+                              </div>
+                            );
+                          },
+                          h2: ({children, ...props}) => {
+                            const text = React.Children.toArray(children).join('');
+                            const cleanText = text.replace(/📊|📝|📋|[0-9]+\.\s*|##\s*/g, '').trim();
+                            if (!cleanText) return null;
+                            
+                            return (
+                              <div className="flex items-center gap-4 mb-6 pb-4 border-b border-white/10">
+                                <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
+                                  <span className="text-lg">📊</span>
+                                </div>
+                                <h2 className="text-2xl font-bold text-white">{cleanText}</h2>
+                              </div>
+                            );
+                          },
+                          h3: ({children, ...props}) => {
+                            const text = React.Children.toArray(children).join('');
+                            const cleanText = text.replace(/🔍|💰|⚠️|📈|🏗️|⚙️|💡|🧠|📄|🤖|📊|[0-9]+\.\s*|###\s*/g, '').trim();
+                            if (!cleanText) return null;
+                            
+                            let icon = '🔍';
+                            let colors = 'from-cyan-500 to-blue-500';
+                            
+                            if (text.includes('LLM Recommendations') || text.includes('Recommendation')) {
+                              icon = '🤖'; colors = 'from-emerald-500 to-teal-500';
+                            } else if (text.includes('Token Cost') || text.includes('Cost')) {
+                              icon = '💰'; colors = 'from-yellow-500 to-orange-500';
+                            } else if (text.includes('Credit Usage') || text.includes('Credit')) {
+                              icon = '⚠️'; colors = 'from-amber-500 to-red-500';
+                            } else if (text.includes('ROI') || text.includes('Payback')) {
+                              icon = '📈'; colors = 'from-green-500 to-emerald-500';
+                            } else if (text.includes('Infrastructure') || text.includes('Deployment')) {
+                              icon = '🏗️'; colors = 'from-purple-500 to-indigo-500';
+                            }
+                            
+                            return (
+                              <div className="bg-white/5 rounded-xl p-4 mb-6 border border-white/10">
+                                <div className="flex items-center gap-3">
+                                  <div className={`w-10 h-10 bg-gradient-to-br ${colors} rounded-xl flex items-center justify-center shadow-lg`}>
+                                    <span className="text-lg">{icon}</span>
+                                  </div>
+                                  <h3 className="text-xl font-bold text-white">{cleanText}</h3>
+                                </div>
+                              </div>
+                            );
+                          },
+                          ul: ({children, ...props}) => {
+                            const validChildren = React.Children.toArray(children).filter(child => 
+                              React.isValidElement(child) || (typeof child === 'string' && child.trim())
+                            );
+                            
+                            if (validChildren.length === 0) return null;
+                            
+                            return <ul className="space-y-3 mb-6" {...props}>{validChildren}</ul>;
+                          },
+                          li: ({children, ...props}) => {
+                            const text = React.Children.toArray(children).join('').trim();
+                            if (!text || text === '•' || text.replace(/[•\s]/g, '') === '') return null;
+                            
+                            const cleanText = text.replace(/^[•\-\*]\s*/, '').trim();
+                            if (!cleanText) return null;
+                            
+                            return (
+                              <li className="flex items-start gap-3 p-4 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-all">
+                                <div className="w-2 h-2 bg-emerald-400 rounded-full mt-2 flex-shrink-0"></div>
+                                <span className="text-gray-200 leading-relaxed">{cleanText}</span>
+                              </li>
+                            );
+                          },
+                          table: ({children, ...props}) => {
+                            // Extract and display actual table data from LLM response
+                            const extractTableData = () => {
+                              const tableRows: Array<{ [key: string]: string }> = [];
+                              let headers: string[] = [];
+                              
+                              try {
+                                React.Children.forEach(children, (child: any) => {
+                                  if (React.isValidElement(child)) {
+                                    if (child.type === 'thead') {
+                                      React.Children.forEach((child as any).props?.children, (row: any) => {
+                                        if (React.isValidElement(row) && (row as any).type === 'tr') {
+                                          React.Children.forEach((row as any).props?.children, (header: any) => {
+                                            if (React.isValidElement(header) && (header as any).type === 'th') {
+                                              const text = React.Children.toArray((header as any).props?.children || []).join('').trim();
+                                              if (text) headers.push(text.replace(/[📊🎯⚠|]/g, '').trim());
+                                            }
+                                          });
+                                        }
+                                      });
+                                    } else if (child.type === 'tbody') {
+                                      React.Children.forEach((child as any).props?.children, (row: any) => {
+                                        if (React.isValidElement(row) && (row as any).type === 'tr') {
+                                          const rowData: { [key: string]: string } = {};
+                                          let cellIndex = 0;
+                                          React.Children.forEach((row as any).props?.children, (cell: any) => {
+                                            if (React.isValidElement(cell) && (cell as any).type === 'td') {
+                                              const text = React.Children.toArray((cell as any).props?.children || []).join('').trim();
+                                              const cleanText = text.replace(/[📊🎯⚠|]/g, '').trim();
+                                              if (cleanText && headers[cellIndex]) {
+                                                rowData[headers[cellIndex]] = cleanText;
+                                              }
+                                              cellIndex++;
+                                            }
+                                          });
+                                          if (Object.keys(rowData).length > 0) {
+                                            tableRows.push(rowData);
+                                          }
+                                        }
+                                      });
+                                    }
+                                  }
+                                });
+                              } catch (error) {
+                                console.log('Table parsing error:', error);
+                              }
+                              
+                              return { headers, tableRows };
+                            };
+
+                            const { headers, tableRows } = extractTableData();
+
+                            // Generate dynamic cards from actual table data
+                            return (
+                              <div className="mb-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                  {tableRows.map((row, idx) => {
+                                    // Smart styling based on content
+                                    const rowText = Object.values(row).join(' ').toLowerCase();
+                                    
+                                    let cardStyle = "from-gray-800/60 to-gray-700/60";
+                                    let borderColor = "border-gray-600/50 hover:border-gray-400/70";
+                                    let iconBg = "bg-gray-500";
+                                    let textColor = "text-gray-300";
+                                    let icon = "📊";
+
+                                    // Dynamic styling based on actual content
+                                    if (rowText.includes('nova') || rowText.includes('lite')) {
+                                      cardStyle = "from-emerald-800/60 to-emerald-700/60";
+                                      borderColor = "border-emerald-600/50 hover:border-emerald-400/70";
+                                      iconBg = "bg-emerald-500"; textColor = "text-emerald-300"; icon = "🤖";
+                                    } else if (rowText.includes('mistral') || rowText.includes('claude')) {
+                                      cardStyle = "from-blue-800/60 to-blue-700/60";
+                                      borderColor = "border-blue-600/50 hover:border-blue-400/70";
+                                      iconBg = "bg-blue-500"; textColor = "text-blue-300"; icon = "🧠";
+                                    } else if (rowText.includes('$') || rowText.includes('cost')) {
+                                      cardStyle = "from-yellow-800/60 to-yellow-700/60";
+                                      borderColor = "border-yellow-600/50 hover:border-yellow-400/70";
+                                      iconBg = "bg-yellow-500"; textColor = "text-yellow-300"; icon = "💰";
+                                    } else if (rowText.includes('roi') || rowText.includes('%')) {
+                                      cardStyle = "from-green-800/60 to-green-700/60";
+                                      borderColor = "border-green-600/50 hover:border-green-400/70";
+                                      iconBg = "bg-green-500"; textColor = "text-green-300"; icon = "📈";
+                                    } else if (rowText.includes('high') || rowText.includes('medium') || rowText.includes('low')) {
+                                      cardStyle = "from-amber-800/60 to-amber-700/60";
+                                      borderColor = "border-amber-600/50 hover:border-amber-400/70";
+                                      iconBg = "bg-amber-500"; textColor = "text-amber-300"; icon = "⚠️";
+                                    }
+
+                                    const title = Object.values(row)[0] || `Item ${idx + 1}`;
+                                    
+                                    return (
+                                      <div key={idx} className={`group bg-gradient-to-br ${cardStyle} rounded-xl p-6 border ${borderColor} transition-all duration-300 hover:shadow-lg transform hover:scale-[1.02]`}>
+                                        <div className="flex items-center gap-3 mb-4">
+                                          <div className={`w-10 h-10 ${iconBg} rounded-xl flex items-center justify-center`}>
+                                            <span className="text-lg">{icon}</span>
+                                          </div>
+                                          <h4 className={`text-lg font-bold ${textColor}`}>{title}</h4>
+                                        </div>
+                                        
+                                        <div className="space-y-3">
+                                          {Object.entries(row).map(([key, value], fieldIdx) => {
+                                            if (fieldIdx === 0 || !value?.trim()) return null;
+                                            
+                                            let valueClass = "text-gray-200";
+                                            if (value.includes('$') || value.match(/\d+%/)) valueClass = "text-emerald-300 font-bold";
+                                            else if (value.toLowerCase().includes('high')) valueClass = "text-red-300 font-semibold";
+                                            else if (value.toLowerCase().includes('medium')) valueClass = "text-yellow-300 font-semibold";
+                                            else if (value.toLowerCase().includes('low')) valueClass = "text-green-300 font-semibold";
+                                            
+                                            return (
+                                              <div key={fieldIdx} className="border-l-2 border-white/20 pl-3">
+                                                <div className="text-xs text-gray-400 uppercase font-semibold mb-1">{key}</div>
+                                                <div className={valueClass}>{value}</div>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                        
+                                        <div className="mt-4 h-1 bg-gradient-to-r from-emerald-400/20 to-teal-400/20 rounded-full">
+                                          <div className="h-full bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full w-full scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            );
+                            return (
+                              <div className="mb-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                  {/* Recommendation Card */}
+                                  <div className="group bg-gradient-to-br from-emerald-800/60 to-emerald-700/60 rounded-xl p-6 border border-emerald-600/50 hover:border-emerald-400/70 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-400/20 transform hover:scale-[1.02]">
+                                    <div className="flex items-center gap-3 mb-4">
+                                      <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center">
+                                        <span className="text-lg">�</span>
+                                      </div>
+                                      <h4 className="text-xl font-bold text-emerald-300">AWS Bedrock</h4>
+                                    </div>
+                                    <p className="text-gray-200 mb-3 leading-relaxed">
+                                      Recommended for Nova Lite, Mistral Small, and Titan via managed services
+                                    </p>
+                                    <div className="flex items-center gap-2 text-sm">
+                                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                                      <span className="text-emerald-300 font-semibold">Cost-Effective</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-sm mt-1">
+                                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                                      <span className="text-emerald-300 font-semibold">Managed Infrastructure</span>
+                                    </div>
+                                    <div className="mt-4 h-1 bg-gradient-to-r from-emerald-400/20 to-teal-400/20 rounded-full">
+                                      <div className="h-full bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full w-full scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                                    </div>
+                                  </div>
+
+                                  {/* Lambda Implementation Card */}
+                                  <div className="group bg-gradient-to-br from-blue-800/60 to-blue-700/60 rounded-xl p-6 border border-blue-600/50 hover:border-blue-400/70 transition-all duration-300 hover:shadow-lg hover:shadow-blue-400/20 transform hover:scale-[1.02]">
+                                    <div className="flex items-center gap-3 mb-4">
+                                      <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
+                                        <span className="text-lg">⚡</span>
+                                      </div>
+                                      <h4 className="text-xl font-bold text-blue-300">AWS Lambda</h4>
+                                    </div>
+                                    <p className="text-gray-200 mb-3 leading-relaxed">
+                                      Trigger agents serverlessly to control costs and scale automatically
+                                    </p>
+                                    <div className="flex items-center gap-2 text-sm">
+                                      <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                                      <span className="text-blue-300 font-semibold">Serverless Architecture</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-sm mt-1">
+                                      <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                                      <span className="text-blue-300 font-semibold">Pay-per-Use</span>
+                                    </div>
+                                    <div className="mt-4 h-1 bg-gradient-to-r from-blue-400/20 to-cyan-400/20 rounded-full">
+                                      <div className="h-full bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full w-full scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          },
+                          p: ({children, ...props}) => {
+                            const text = React.Children.toArray(children).join('').trim();
+                            if (!text || text.replace(/[📊🎯⚠•\s]/g, '') === '') return null;
+                            
+                            return <p className="text-gray-200 leading-relaxed mb-4" {...props}>{children}</p>;
+                          },
+                          strong: ({children, ...props}) => (
+                            <strong className="text-emerald-300 font-bold" {...props}>{children}</strong>
+                          ),
+                          em: ({children, ...props}) => (
+                            <em className="text-cyan-300 italic" {...props}>{children}</em>
+                          ),
+                          code: ({children, ...props}) => (
+                            <code className="bg-gray-800 text-emerald-300 px-2 py-1 rounded text-sm font-mono" {...props}>{children}</code>
+                          ),
+                          blockquote: ({children, ...props}) => (
+                            <blockquote className="border-l-4 border-emerald-400 pl-6 py-2 my-6 bg-emerald-500/10 rounded-r-lg" {...props}>
+                              <div className="text-gray-200 italic">{children}</div>
+                            </blockquote>
+                          ),
+                        }}
+                      />
                       
                       {/* Fallback Content Display */}
                       {(!result.response || result.response.trim().length < 100) && (

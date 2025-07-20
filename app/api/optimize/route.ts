@@ -275,7 +275,7 @@ export async function POST(request: NextRequest) {
         <td style="padding:10px 12px;">Notes</td>
       </tr>
       <tr><td style="padding:8px 12px;background:#fff;">Claude 3 Haiku</td><td style="padding:8px 12px;background:#fff;">800</td><td style="padding:8px 12px;background:#fff;">$42</td><td style="padding:8px 12px;background:#fff;">Best for summarization</td></tr>
-      <tr><td style="padding:8px 12px;background:#f3f3f3;">Nova 2</td><td style="padding:8px 12px;background:#f3f3f3;">600</td><td style="padding:8px 12px;background:#f3f3f3;">$18</td><td style="padding:8px 12px;background:#f3f3f3;">Ideal for chatbot interactions</td></tr>
+      <!-- <tr><td style="padding:8px 12px;background:#f3f3f3;">Nova 2</td><td style="padding:8px 12px;background:#f3f3f3;">600</td><td style="padding:8px 12px;background:#f3f3f3;">$18</td><td style="padding:8px 12px;background:#f3f3f3;">Ideal for chatbot interactions</td></tr> -->
     </table>
   </div>
   <div style="margin-top:32px;">
